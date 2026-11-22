@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Original hand-off files (kept locally as a backup, not versioned)
+_original/
+
+# Secrets – never commit
+.env
+.env.*
+supabase/.env
+supabase/.temp/
+supabase/.branches/
+
+# Tools
+node_modules/
+.netlify/

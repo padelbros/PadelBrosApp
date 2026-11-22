@@ -1,0 +1,20 @@
+# Netlify: publishes the app/ folder as-is (no build step).
+[build]
+  publish = "app"
+
+# The service worker and config must never be cached by the browser,
+# otherwise users keep running an old version of the app.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/config.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
