@@ -33,8 +33,13 @@ Never edit the database "by hand" without also saving the SQL here.
 3. Apply it (Supabase SQL editor, or `supabase db push` once the CLI is set up).
 4. Commit the file together with the app change that needs it.
 
-> ⚠️ Updates 1–25 were run directly in the Supabase SQL editor and are not in this repo yet.
-> The next step is to export the current database schema as a baseline (see "Open TODOs").
+`supabase/migrations/20261101000000_baseline.sql` is an export of the live database (structure only,
+no data) and contains updates 1–25. It is already marked as applied and is never run again.
+Not included in the export: the `storage` schema (avatar bucket + its policies) and `pg_cron` jobs.
+
+After merging to `main`, GitHub Actions (`.github/workflows/supabase-deploy.yml`) runs every
+**new** file in `supabase/migrations/` on the **live** database. Write migrations that only add
+(new columns/functions), never drop or rename, and make them safe to run twice.
 
 ## Edge Function
 
@@ -44,6 +49,9 @@ Secrets (`SUPABASE_SERVICE_ROLE_KEY`, VAPID keys in table `push_keys`) live in S
 
 ## Open TODOs
 
-- [ ] Export current DB schema as baseline migration (`supabase db pull`)
-- [ ] Push repo to GitHub (private)
+- [x] Export current DB schema as baseline migration
+- [x] Push repo to GitHub
 - [ ] Connect Netlify to GitHub for automatic deploys
+- [ ] Enable auto-deploy of the send-push function
+- [ ] Test environment: second Supabase project for branches/previews
+- [ ] Protect `main` (pull requests required) and invite contributors
