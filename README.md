@@ -1,6 +1,8 @@
 # PadelBros App
 
 Internal app for PadelBros (teams, replacement pool, tasks, events, shift schedule, chat, push notifications).
+
+**New here? Read [HISTORY.md](HISTORY.md) first** – background, how it was built before, and the rules for working on it.
 Live at **https://app.padel-bros.de**.
 
 ## How it is built
@@ -16,13 +18,13 @@ Live at **https://app.padel-bros.de**.
 
 ## Daily workflow
 
-1. Change files.
+1. Create a branch from `main` (never push to `main` directly).
 2. Test locally: `cd app && python3 -m http.server 8000` → open http://localhost:8000
-   (the app also has a built-in demo mode that works without Supabase).
+   ⚠️ This uses the **live** database – real data. (Demo mode needs `app/demo-daten.js`, which is missing.)
 3. **If you changed anything in `app/`, bump the cache name in `app/sw.js`**
    (`pb-app-v23` → `pb-app-v24`), otherwise installed apps keep the old version.
-4. Commit: `git add -A && git commit -m "Short description of the change"`
-5. Deploy (see below).
+4. Commit and push the branch, then open a pull request on GitHub.
+5. Check the Netlify preview link in the pull request, then merge. Merging deploys automatically.
 
 ## Database changes
 
@@ -51,7 +53,7 @@ Secrets (`SUPABASE_SERVICE_ROLE_KEY`, VAPID keys in table `push_keys`) live in S
 
 - [x] Export current DB schema as baseline migration
 - [x] Push repo to GitHub
-- [ ] Connect Netlify to GitHub for automatic deploys
+- [x] Connect Netlify to GitHub for automatic deploys
 - [x] Enable auto-deploy of the send-push function
 - [ ] Test environment: second Supabase project for branches/previews
 - [ ] Protect `main` (pull requests required) and invite contributors
