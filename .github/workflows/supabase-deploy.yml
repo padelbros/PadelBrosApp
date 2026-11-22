@@ -1,0 +1,47 @@
+# Runs automatically when something in supabase/ changes on main:
+# applies new SQL migrations and (once enabled) deploys the send-push function.
+name: Supabase deploy
+
+on:
+  push:
+    branches: [main]
+    paths: ["supabase/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Safety: do nothing until the baseline export exists
+      - name: Check baseline exists
+        id: check
+        run: |
+          if ls supabase/migrations/*_baseline.sql >/dev/null 2>&1; then echo "ok=true" >> "$GITHUB_OUTPUT";
+          else echo "No baseline yet – skipping deploy."; echo "ok=false" >> "$GITHUB_OUTPUT"; fi
+
+      - if: steps.check.outputs.ok == 'true'
+        uses: supabase/setup-cli@v1
+        with:
+          version: 3.2.0
+
+      - name: Link project
+        if: steps.check.outputs.ok == 'true'
+        run: supabase link --project-ref "$PROJECT_ID" -p "$SUPABASE_DB_PASSWORD"
+
+      - name: Apply new migrations
+        if: steps.check.outputs.ok == 'true'
+        run: supabase db push -p "$SUPABASE_DB_PASSWORD"
+
+      # Enable after confirming verify_jwt in supabase/config.toml
+      # - name: Deploy send-push function
+      #   run: supabase functions deploy send-push --project-ref "$PROJECT_ID"

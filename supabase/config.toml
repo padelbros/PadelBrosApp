@@ -1,0 +1,9 @@
+# Minimal Supabase CLI config for this repo (used by GitHub Actions).
+project_id = "nweoqhozcbrkihktqyqc"
+
+# send-push is called by the database, not by the browser.
+# IMPORTANT: this must match the toggle "Enforce JWT verification" in the
+# Supabase dashboard (Edge Functions → send-push → Details), otherwise a
+# deploy from GitHub can break push notifications.
+[functions.send-push]
+verify_jwt = true   # TODO: confirm in dashboard before enabling auto-deploy
