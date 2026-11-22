@@ -43,8 +43,8 @@ After merging to `main`, GitHub Actions (`.github/workflows/supabase-deploy.yml`
 
 ## Edge Function
 
-Deploy after changing `supabase/functions/send-push/index.ts`:
-`supabase functions deploy send-push` (or paste into the Supabase dashboard as before).
+Deployed automatically by GitHub Actions when `supabase/functions/send-push/` changes on `main`
+(or by hand: Actions → Supabase deploy → Run workflow). Don't edit it in the dashboard anymore.
 Secrets (`SUPABASE_SERVICE_ROLE_KEY`, VAPID keys in table `push_keys`) live in Supabase, **never in this repo**.
 
 ## Open TODOs
@@ -52,6 +52,6 @@ Secrets (`SUPABASE_SERVICE_ROLE_KEY`, VAPID keys in table `push_keys`) live in S
 - [x] Export current DB schema as baseline migration
 - [x] Push repo to GitHub
 - [ ] Connect Netlify to GitHub for automatic deploys
-- [ ] Enable auto-deploy of the send-push function
+- [x] Enable auto-deploy of the send-push function
 - [ ] Test environment: second Supabase project for branches/previews
 - [ ] Protect `main` (pull requests required) and invite contributors

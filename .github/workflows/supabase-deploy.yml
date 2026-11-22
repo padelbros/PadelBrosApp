@@ -1,5 +1,5 @@
 # Runs automatically when something in supabase/ changes on main:
-# applies new SQL migrations and (once enabled) deploys the send-push function.
+# applies new SQL migrations and deploys the send-push function if its code changed.
 name: Supabase deploy
 
 on:
@@ -21,6 +21,8 @@ jobs:
       PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       # Safety: do nothing until the baseline export exists
       - name: Check baseline exists
@@ -42,6 +44,20 @@ jobs:
         if: steps.check.outputs.ok == 'true'
         run: supabase db push --remote --yes -p "$SUPABASE_DB_PASSWORD"
 
-      # Enable after confirming verify_jwt in supabase/config.toml
-      # - name: Deploy send-push function
-      #   run: supabase functions deploy send-push --project-ref "$PROJECT_ID"
+      # Only redeploy the push function when its code changed in this push
+      # (or when the workflow is started by hand from the Actions tab).
+      - name: Did the push function change?
+        id: fn
+        if: steps.check.outputs.ok == 'true'
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "changed=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          BEFORE="${{ github.event.before }}"
+          if git cat-file -e "$BEFORE" 2>/dev/null && git diff --name-only "$BEFORE" "${{ github.sha }}" | grep -q '^supabase/functions/send-push/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No changes to send-push – not deploying it."; echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy send-push function
+        if: steps.check.outputs.ok == 'true' && steps.fn.outputs.changed == 'true'
+        run: supabase functions deploy send-push --use-api --yes
