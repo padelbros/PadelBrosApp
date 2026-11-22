@@ -19,7 +19,7 @@ jobs:
       PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
       BASELINE: "20261101000000"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: supabase/setup-cli@v1
         with:
           version: 3.2.0
@@ -28,10 +28,10 @@ jobs:
         run: supabase link --project-ref "$PROJECT_ID" -p "$SUPABASE_DB_PASSWORD"
 
       - name: Export schema (structure only, no user data)
-        run: supabase db dump --linked -f "supabase/migrations/${BASELINE}_baseline.sql"
+        run: supabase db dump --remote -f "supabase/migrations/${BASELINE}_baseline.sql"
 
       - name: Mark baseline and update 26 as already applied
-        run: supabase migration repair --status applied "$BASELINE" 20261122000026 -p "$SUPABASE_DB_PASSWORD"
+        run: supabase migration repair --status applied "$BASELINE" 20261122000026 --remote --yes -p "$SUPABASE_DB_PASSWORD"
 
       - name: Commit the export
         run: |

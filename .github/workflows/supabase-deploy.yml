@@ -20,7 +20,7 @@ jobs:
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Safety: do nothing until the baseline export exists
       - name: Check baseline exists
@@ -40,7 +40,7 @@ jobs:
 
       - name: Apply new migrations
         if: steps.check.outputs.ok == 'true'
-        run: supabase db push -p "$SUPABASE_DB_PASSWORD"
+        run: supabase db push --remote --yes -p "$SUPABASE_DB_PASSWORD"
 
       # Enable after confirming verify_jwt in supabase/config.toml
       # - name: Deploy send-push function
